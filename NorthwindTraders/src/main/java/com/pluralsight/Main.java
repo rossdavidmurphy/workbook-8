@@ -24,30 +24,51 @@ public class Main {
         connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", username, password);
 
         String sql = """
-                         SELECT ProductId,
-                                ProductName,
-                                UnitPrice,
-                                UnitsInStock
-                         FROM Products
-                         """;
+                SELECT ProductId,
+                       ProductName,
+                       UnitPrice,
+                       UnitsInStock
+                FROM Products
+                """;
 
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ResultSet results = null;
+        PreparedStatement preparedStatement = null;
 
-        ResultSet results = preparedStatement.executeQuery();
+        try {
+            preparedStatement = connection.prepareStatement(sql);
 
-        System.out.printf("%-5s %-40s %15s %10s%n", "ID", "Product Name", "Price", "Stock");
-        System.out.println("-------------------------------------------------------------------------");
+            results = preparedStatement.executeQuery();
 
-        while (results.next()) {
-            int productId = results.getInt("ProductID");
-            String productName = results.getString("ProductName");
-            double unitPrice = results.getDouble("UnitPrice");
-            int unitsInStock = results.getInt("UnitsInStock");
-            System.out.printf("%-5d %-40s %15.2f %10d%n", productId, productName, unitPrice, unitsInStock);
+            System.out.printf("%-5s %-40s %15s %10s%n", "ID", "Product Name", "Price", "Stock");
+            System.out.println("-------------------------------------------------------------------------");
+
+            while (results.next()) {
+                int productId = results.getInt("ProductID");
+                String productName = results.getString("ProductName");
+                double unitPrice = results.getDouble("UnitPrice");
+                int unitsInStock = results.getInt("UnitsInStock");
+                System.out.printf("%-5d %-40s %15.2f %10d%n", productId, productName, unitPrice, unitsInStock);
+            }
         }
-
-        results.close();
-        preparedStatement.close();
-        connection.close();
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            if (results != null) try {
+                results.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            if (preparedStatement != null) try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            if (connection != null) try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
