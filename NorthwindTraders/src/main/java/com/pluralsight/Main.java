@@ -8,7 +8,7 @@ package com.pluralsight;
 import java.sql.*;
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
 
         if (args.length != 2) {
             System.out.println(
@@ -20,21 +20,21 @@ public class Main {
         String username = args[0];
         String password = args[1];
 
-        Connection connection;
-        connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", username, password);
-
-        String sql = """
-                SELECT ProductId,
-                       ProductName,
-                       UnitPrice,
-                       UnitsInStock
-                FROM Products
-                """;
-
         ResultSet results = null;
         PreparedStatement preparedStatement = null;
+        Connection connection = null;
 
         try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", username, password);
+
+            String sql = """
+                    SELECT ProductId,
+                           ProductName,
+                           UnitPrice,
+                           UnitsInStock
+                    FROM Products
+                    """;
+            
             preparedStatement = connection.prepareStatement(sql);
 
             results = preparedStatement.executeQuery();
@@ -49,25 +49,24 @@ public class Main {
                 int unitsInStock = results.getInt("UnitsInStock");
                 System.out.printf("%-5d %-40s %15.2f %10d%n", productId, productName, unitPrice, unitsInStock);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
+            System.out.println("There was an error retrieving your information. Please try again or contact support");
             throw new RuntimeException(e);
-        }
-        finally {
+        } finally {
             if (results != null) try {
                 results.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
             if (preparedStatement != null) try {
                 preparedStatement.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
             if (connection != null) try {
                 connection.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
     }
