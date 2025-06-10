@@ -5,6 +5,7 @@ package com.pluralsight;
 //import java.sql.ResultSet;
 //import java.sql.SQLException;
 //import java.sql.Statement;
+
 import java.sql.*;
 
 public class Main {
@@ -20,24 +21,20 @@ public class Main {
         String username = args[0];
         String password = args[1];
 
-        ResultSet results = null;
-        PreparedStatement preparedStatement = null;
-        Connection connection = null;
+        String sql = """
+                SELECT ProductId,
+                       ProductName,
+                       UnitPrice,
+                       UnitsInStock
+                FROM Products
+                """;
 
-        try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", username, password);
+        try (
+                Connection connection =DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind",username,password) ;
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                ResultSet results = preparedStatement.executeQuery();
+                ) {
 
-            String sql = """
-                    SELECT ProductId,
-                           ProductName,
-                           UnitPrice,
-                           UnitsInStock
-                    FROM Products
-                    """;
-            
-            preparedStatement = connection.prepareStatement(sql);
-
-            results = preparedStatement.executeQuery();
 
             System.out.printf("%-5s %-40s %15s %10s%n", "ID", "Product Name", "Price", "Stock");
             System.out.println("-------------------------------------------------------------------------");
@@ -49,25 +46,10 @@ public class Main {
                 int unitsInStock = results.getInt("UnitsInStock");
                 System.out.printf("%-5d %-40s %15.2f %10d%n", productId, productName, unitPrice, unitsInStock);
             }
-        } catch (SQLException e) {
+        } catch(SQLException e){
             System.out.println("There was an error retrieving your information. Please try again or contact support");
             throw new RuntimeException(e);
-        } finally {
-            if (results != null) try {
-                results.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            if (preparedStatement != null) try {
-                preparedStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            if (connection != null) try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 }
+
