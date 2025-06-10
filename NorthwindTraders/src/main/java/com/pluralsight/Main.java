@@ -35,15 +35,15 @@ public class Main {
 
         ResultSet results = preparedStatement.executeQuery();
 
-        System.out.printf("%-4s %-40s %15s %10s%n", "ID", "Product Name", "Unit Price", "Stock");
-        System.out.println("------------------------------------------------------------------------");
+        System.out.printf("%-5s %-40s %15s %10s%n", "ID", "Product Name", "Price", "Stock");
+        System.out.println("-------------------------------------------------------------------------");
 
         while (results.next()) {
             int productId = results.getInt("ProductID");
             String productName = results.getString("ProductName");
             double unitPrice = results.getDouble("UnitPrice");
             int unitsInStock = results.getInt("UnitsInStock");
-            System.out.printf("%-4d %-40s %15.2f %10d%n", productId, productName, unitPrice, unitsInStock);
+            System.out.printf("%-5d %-40s %15.2f %10d%n", productId, productName, unitPrice, unitsInStock);
         }
 
         results.close();
